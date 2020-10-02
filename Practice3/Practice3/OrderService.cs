@@ -8,33 +8,26 @@ using System.Xml.Serialization;
 
 namespace Practice3
 {
-    [Serializable]
     public class OrderService
     {
-        private List<Order> OrderList { set; get; }
-        private int currentID;
+        public List<Order> OrderList { set; get; }
+        public int currentID;
         public OrderService()
         {
             OrderList = new List<Order>();
             currentID = 1;
         }
-        /*
-        public void UpdateOrder(int id,string client)
-        {
-            var or = OrderList.Find(o => o.ID == id);
-            or.Client = client;
-            Console.WriteLine("UpdateOrder successful.");
-        }*/
-        public void Update(int id,string commodity,double unitPrice,int amount)
+        public bool Update(int id, string commodity, double unitPrice, int amount)
         {
             var or = OrderList.Where(o => o.ID == id).FirstOrDefault();
+            if (or == null) return false;
             var od = or.DetailsList.Where(o => o.Commodity == commodity).FirstOrDefault();
-            if(od==null)
+            if (od == null)
             {
                 var odd = new OrderDetails(commodity, unitPrice, amount);
                 or.DetailsList.Add(odd);
             }
-            else if(amount==0)
+            else if (amount == 0)
             {
                 or.DetailsList.Remove(od);
             }
@@ -45,119 +38,75 @@ namespace Practice3
                 od.TotalPrice = unitPrice * amount;
             }
             or.CalculateTotal();
-            Console.WriteLine("UpdateDetails successful.");
+            return true;
         }
         public void Create(string client)
         {
             var or = new Order(currentID, client);
             currentID++;
             OrderList.Add(or);
-            Console.WriteLine("Create successful.");
         }
-        public void Delete(int id)
+        public bool Delete(int id)
         {
             var or = OrderList.Where(o => o.ID == id).FirstOrDefault();
             OrderList.Remove(or);
-            if(or==null)
-                Console.WriteLine("No order matched.");
+            if (or == null)
+                return false;
             else
-                Console.WriteLine("Delete successful.");
+                return true;
         }
-        public void ReadOrder(int id)
+        //四个查询订单函数
+        public List<Order> ReadOrder(int id, List<Order> orders)
         {
-            var or = OrderList.Where(o => o.ID == id).FirstOrDefault();
-            or.Show();
+            if (id == -1) return orders;
+            return orders.Where(o => o.ID == id).ToList();
         }
-        public void ReadOrder(string client)
+        public List<Order> ReadOrder(string client, List<Order> orders)
         {
-            var orl = OrderList.Where(o => o.Client == client).OrderBy(o => o.Total);
-            //var orl = OrderList.FindAll(o => o.Client == client);
-            foreach (var or in orl)
-                or.Show();
+            if (client == "") return orders;
+            return orders.Where(o => o.Client == client).OrderBy(o => o.Total).ToList();
         }
-        public void ReadDetails(string commodity)
+        public List<Order> ReadOrder(double down, double up, List<Order> orders)
         {
+            if (down == -1 || up == -1) return orders;
+            return OrderList.Where(o => o.Total >= down && o.Total <= up).OrderBy(o => o.Total).ToList();
+        }
+        public List<Order> ReadDetails(string commodity, List<Order> orders)
+        {
+            if (commodity == "") return orders;
             var orl = from o in OrderList where o.DetailsList.Any(s => s.Commodity == commodity) orderby o.Total select o;
-            foreach (var or in orl)
-                or.Show();
+            return orl.ToList();
         }
-        public void Interface()
+    }
+
+    //xml序列化类
+    public class xml_serializer_manager
+    {
+        public void serialize_to_xml(string path, object obj)
         {
-            Console.WriteLine("Enter one number:(1:Create 2:Delete 3:Update 4:ReadOrder 5:ReadDetails)");
-            try
+            XmlSerializer serializer = new XmlSerializer(obj.GetType());
+            string content = string.Empty;
+            //serialize
+            using (StringWriter writer = new StringWriter())
             {
-                int n = Int32.Parse(Console.ReadLine());
-                switch (n)
-                {
-                    case 1:
-                        Console.Write("Enter client name:");
-                        Create(Console.ReadLine());
-                        break;
-                    case 2:
-                        Console.Write("Enter order ID:");
-                        Delete(Int32.Parse(Console.ReadLine()));
-                        break;
-                    case 3:
-                        Console.Write("Enter order ID:");
-                        int id = Int32.Parse(Console.ReadLine());
-                        Console.Write("Enter new commodity:");
-                        string commodity = Console.ReadLine();
-                        Console.Write("Enter unitPrice:");
-                        double unitPrice = double.Parse(Console.ReadLine());
-                        Console.Write("Enter new amount:");
-                        int amount = Int32.Parse(Console.ReadLine());
-                        Update(id, commodity, unitPrice, amount);
-                        break;
-                    case 4:
-                        Console.Write("Enter key:");
-                        string key = Console.ReadLine();
-                        try
-                        {
-                            int k = Int32.Parse(key);
-                            ReadOrder(k);
-                        }
-                        catch (FormatException e)
-                        {
-                            ReadOrder(key);
-                        }
-                        break;
-                    case 5:
-                        Console.Write("Enter commodity:");
-                        ReadDetails(Console.ReadLine());
-                        break;
-                    default:
-                        break;
-                }
-            }catch(FormatException e) 
+                serializer.Serialize(writer, obj);
+                content = writer.ToString();
+            }
+            //save to file
+            using (StreamWriter stream_writer = new StreamWriter(path))
             {
-                this.Interface();
+                stream_writer.Write(content);
             }
         }
 
-        public void Export()
+        public object deserialize_from_xml(string path, Type object_type)
         {
-            XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<Order>));
-            FileStream fs = new FileStream("s.xml", FileMode.Create);
-            xmlSerializer.Serialize(fs, OrderList);
-            fs.Close();
-            Console.WriteLine("\nSerialized as XML:");
-            Console.WriteLine(File.ReadAllText("s.xml"));
-            OrderList.Clear();
-        }
-
-        public void Import()
-        {
-            XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<Order>));
-            using(FileStream fs=new FileStream("s.xml",FileMode.Open))
+            XmlSerializer serializer = new XmlSerializer(object_type);
+            using (StreamReader reader = new StreamReader(path))
             {
-                List<Order> orders = (List<Order>)xmlSerializer.Deserialize(fs);
-                foreach(Order i in orders)
-                {
-                    OrderList.Add(i);
-                }
+                return serializer.Deserialize(reader);
             }
-            Console.WriteLine("\n");
-            OrderList.ForEach(i => i.Show());
         }
     }
 }
+

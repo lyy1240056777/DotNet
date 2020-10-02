@@ -18,17 +18,14 @@ namespace Practice3
             if (or == null)
                 return false;
             return ID == or.ID;
-            //return base.Equals(obj);
         }
         public override int GetHashCode()
         {
             return ID.GetHashCode();
-            //return base.GetHashCode();
         }
         public override string ToString()
         {
             return ID.ToString();
-            //return base.ToString();
         }
         public Order() { }
         public Order(int id,string client)
@@ -36,7 +33,6 @@ namespace Practice3
             DetailsList = new List<OrderDetails>();
             ID = id;
             Client = client;
-            /*计算Total*/
             var tt = from od in DetailsList select od.TotalPrice;
             Total = 0;
             foreach (double t in tt)
@@ -56,7 +52,6 @@ namespace Practice3
             {
                 Console.WriteLine($"    Commodity:{od.Commodity} UnitPrice:{od.UnitPrice} Amount:{od.Amount} TotalPrice:{od.TotalPrice}");
             }
-            //Console.WriteLine("----------------------------------------------------");
         }
     }
 }
