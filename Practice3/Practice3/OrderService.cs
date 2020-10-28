@@ -19,6 +19,7 @@ namespace Practice3
         }
         public bool Update(int id, string commodity, double unitPrice, int amount)
         {
+            /*
             var or = OrderList.Where(o => o.ID == id).FirstOrDefault();
             if (or == null) return false;
             var od = or.DetailsList.Where(o => o.Commodity == commodity).FirstOrDefault();
@@ -39,21 +40,79 @@ namespace Practice3
             }
             or.CalculateTotal();
             return true;
+            */
+            using(var db=new OrderContext())
+            {
+                var order = db.Orders.Where(s => s.ID == id).FirstOrDefault();
+                if (order == null) return false;
+                OrderDetails od = new OrderDetails(commodity, unitPrice, amount);
+                order.DetailsList.Add(od);
+
+                var orderDetail = order.DetailsList.Where(s => s.Commodity == commodity).FirstOrDefault();
+                if (orderDetail == null)
+                {
+                    order.DetailsList.Add(new OrderDetails
+                    {
+                        Commodity = commodity,
+                        UnitPrice = unitPrice,
+                        Amount = amount
+                    });
+                }
+                else if (amount == 0) order.DetailsList.Remove(orderDetail);
+                else
+                {
+                    orderDetail.UnitPrice = unitPrice;
+                    orderDetail.Amount = amount;
+                    orderDetail.TotalPrice = unitPrice * amount;
+                }
+                order.CalculateTotal();
+                db.SaveChanges();
+                return true;
+            }
         }
         public void Create(string client)
         {
+            /*
             var or = new Order(currentID, client);
             currentID++;
             OrderList.Add(or);
+            */
+            using(var db=new OrderContext())
+            {
+                //var order = new Order { Client = client, ID = currentID };
+                var order = new Order(currentID, client);
+                currentID++;
+                db.Orders.Add(order);
+                Console.WriteLine(db.Orders.FirstOrDefault(s=>s.ID==1));
+                db.SaveChanges();
+            }
+        }
+        public List<Order> GetAllOrders()
+        {
+            using(var db=new OrderContext())
+            {
+                return db.Orders.ToList();
+            }
         }
         public bool Delete(int id)
         {
+            /*
             var or = OrderList.Where(o => o.ID == id).FirstOrDefault();
             OrderList.Remove(or);
             if (or == null)
                 return false;
             else
                 return true;
+                */
+            using(var db=new OrderContext())
+            {
+                var order = db.Orders.Include("DetailsList").FirstOrDefault(s => s.ID == id);
+                db.Orders.Remove(order);
+                if (order == null)
+                    return false;
+                else
+                    return true;
+            }
         }
         //四个查询订单函数
         public List<Order> ReadOrder(int id, List<Order> orders)

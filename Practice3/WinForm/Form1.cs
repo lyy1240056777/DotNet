@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Practice3;
+//using Practice3;
 
 namespace WinForm
 {
@@ -23,19 +23,36 @@ namespace WinForm
         private void Form1_Load(object sender, EventArgs e)
         {
             os = new OrderService();
+            /*
+            os.OrderList.Add(new Order
+            {
+                ID = 1,
+                Client = "a",
+                DetailsList = new List<OrderDetails>(),
+                Total=0
+            });
+            */
+            
             os.Create("lyy");
             os.Create("ww");
             os.Update(1, "cn", 10, 2);
             os.Update(1, "zyh", 6, 1);
             os.Update(2, "lzh", 20, 3);
-            dataGridView1.DataSource = os.OrderList;
+            using(var db=new OrderContext())
+            {
+                var order = db.Orders.SingleOrDefault(s => s.ID == 1);
+                label1.Text = order.Client;
+            }
+            orderBS.DataSource = os.GetAllOrders();
+            orderBS.ResetBindings(true);
+            //dataGridView1.DataSource = os.OrderList;
             /*
             dataGridView1.Columns[1].HeaderText = "客户名";
             dataGridView1.Columns[2].HeaderText = "总价";
             */
-            dataGridView1.Columns[0].Width = 70;
-            dataGridView1.Columns[1].Width = 100;
-            dataGridView1.Columns[2].Width = 100;
+            //dataGridView1.Columns[0].Width = 70;
+            //dataGridView1.Columns[1].Width = 100;
+            //dataGridView1.Columns[2].Width = 100;
         }
 
         private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
@@ -118,8 +135,10 @@ namespace WinForm
 
         private void ReadAllBtn_Click(object sender, EventArgs e)
         {
-            dataGridView1.DataSource = null;
-            dataGridView1.DataSource = os.OrderList;
+            //dataGridView1.DataSource = null;
+            //dataGridView1.DataSource = os.OrderList;
+            orderBS.DataSource = os.GetAllOrders();
+            orderBS.ResetBindings(false);
         }
 
         private void ImportBtn_Click(object sender, EventArgs e)

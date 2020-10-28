@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29905.134
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Practice3", "Practice3\Practice3.csproj", "{1FD4D103-912D-49FC-8D1A-C849B7FDEB05}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinForm", "WinForm\WinForm.csproj", "{42E4EBDA-36B1-44F0-8B97-CA8BC0561271}"
 EndProject
 Global
@@ -13,10 +11,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1FD4D103-912D-49FC-8D1A-C849B7FDEB05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1FD4D103-912D-49FC-8D1A-C849B7FDEB05}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1FD4D103-912D-49FC-8D1A-C849B7FDEB05}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1FD4D103-912D-49FC-8D1A-C849B7FDEB05}.Release|Any CPU.Build.0 = Release|Any CPU
 		{42E4EBDA-36B1-44F0-8B97-CA8BC0561271}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{42E4EBDA-36B1-44F0-8B97-CA8BC0561271}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42E4EBDA-36B1-44F0-8B97-CA8BC0561271}.Release|Any CPU.ActiveCfg = Release|Any CPU

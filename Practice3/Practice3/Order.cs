@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Practice3
 {
     public class Order
     {
+        [Key,Column(Order=1)]
         public int ID { set; get; }
+        [Required]
         public string Client { set; get; }
         public double Total { set; get; }
         public List<OrderDetails> DetailsList { set; get; }
@@ -27,7 +31,10 @@ namespace Practice3
         {
             return ID.ToString();
         }
-        public Order() { }
+        public Order() 
+        {
+            DetailsList = new List<OrderDetails>();
+        }
         public Order(int id,string client)
         {
             DetailsList = new List<OrderDetails>();
@@ -44,14 +51,6 @@ namespace Practice3
             Total = 0;
             foreach (double t in tt)
                 Total += t;
-        }
-        public void Show()
-        {
-            Console.WriteLine($"ID:{ID} Client:{Client} Total:{Total}");
-            foreach(var od in DetailsList)
-            {
-                Console.WriteLine($"    Commodity:{od.Commodity} UnitPrice:{od.UnitPrice} Amount:{od.Amount} TotalPrice:{od.TotalPrice}");
-            }
         }
     }
 }
